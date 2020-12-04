@@ -55,11 +55,49 @@ export class App extends React.Component<AppProps, AppState> {
   }
 
   timezones = {
-    "New York": "America/New_York",
-    "Los Angeles": "America/Los_Angeles",
-    "London": "Europe/London",
-    "Shanghai": "Asia/Shanghai",
-    "New Delhi": "Asia/Calcutta"
+    "UTC-12:00": "-12:00",
+    "UTC-11:00": "-11:00",
+    "UTC-10:00": "-10:00",
+    "UTC-09:30": "-09:30",
+    "UTC-09:00": "-09:00",
+    "PST (UTC-08:00)": "-08:00",
+    "PDT (UTC-07:00)": "-07:00",
+    "MST (UTC-07:00)": "-07:00",
+    "MDT (UTC-06:00)": "-06:00",
+    "CST (UTC-06:00)": "-06:00",
+    "CDT (UTC-05:00)": "-05:00",
+    "EST (UTC-05:00)": "-05:00",
+    "UTC-04:30": "-04:30",
+    "EDT (UTC-04:00)": "-04:00",
+    "UTC-03:30": "-03:30",
+    "BRT (UTC-03:00)": "-03:00",
+    "UTC-02:00": "-02:00",
+    "UTC-01:00": "-01:00",
+    "UTC": "+00:00",
+    "CET (UTC+01:00)": "+01:00",
+    "CEST (UTC+02:00)": "+02:00",
+    "TRT (UTC+03:00)": "+03:00",
+    "UTC+03:30": "+03:30",
+    "UTC+04:00": "+04:00",
+    "UTC+04:30": "+04:30",
+    "UTC+05:00": "+05:00",
+    "IST (UTC+05:30)": "+05:30",
+    "UTC+05:45": "+05:45",
+    "UTC+06:00": "+06:00",
+    "UTC+06:30": "+06:30",
+    "UTC+07:00": "+07:00",
+    "SGT (UTC+08:00)": "+08:00",
+    "UTC+08:45": "+08:45",
+    "JST (UTC+09:00)": "+09:00",
+    "UTC+09:30": "+09:30",
+    "AEST (UTC+10:00)": "+10:00",
+    "UTC+10:30": "+10:30",
+    "AEDT (UTC+11:00)": "+11:00",
+    "UTC+11:30": "+11:30",
+    "NZST (UTC+12:00)": "+12:00",
+    "UTC+12:45": "+12:45",
+    "NZDT (UTC+13:00)": "+13:00",
+    "UTC+14:00": "+14:00"
   };
 
   onExternalChange = (value: string) => {
@@ -73,6 +111,7 @@ export class App extends React.Component<AppProps, AppState> {
 
     const longTimeZone = this.timezones[state.timeZone];
     const newValue = zonedTimeToUtc(`${state.date} ${state.time}`, longTimeZone);
+    console.log(newValue);
     if (newValue) {
       await this.props.sdk.field.setValue(newValue);
     } else {
