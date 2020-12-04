@@ -1,0 +1,8 @@
+{
+  "id": "date-with-timezones",
+  "name": "date-with-timezones",
+  "srcdoc": "./build/index.html",
+  "fieldTypes": [
+    "Date"
+  ]
+}

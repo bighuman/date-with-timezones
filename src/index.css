@@ -1,0 +1,26 @@
+html,
+body,
+div {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+.date-with-timezones {
+  height: 170px;
+}
+.date-with-timezones .row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+.date-with-timezones .label {
+  margin-right: 20px;
+}
+.date-with-timezones .input-field {
+  display: flex;
+  flex-direction: row;
+  margin-right: 20px;
+}
