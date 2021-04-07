@@ -8,8 +8,7 @@ import {
   DropdownListItem
 } from '@contentful/forma-36-react-components';
 import { init, FieldExtensionSDK } from 'contentful-ui-extensions-sdk';
-import { format } from 'date-fns';
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { format, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 import '@contentful/forma-36-react-components/dist/styles.css';
 import './index.css';
 
@@ -27,7 +26,7 @@ interface AppState {
 const LOCAL_STORAGE_TIMZONE_KEY = 'date-with-timezones-default';
 
 const DEFAULT_TIMEZONE = 'PDT (UTC-07:00)';
-const DATE_FORMAT = 'yyyy-MM-ddThh:mm';
+const DATE_FORMAT = 'yyyy-MM-dd,hh:mm';
 
 const TIMEZONES: { [key: string]: string } = {
   'UTC-12:00': '-12:00',
@@ -81,13 +80,13 @@ export class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
-    const initDate = new Date() || props.sdk.field.getValue();
+    const initDate = props.sdk.field.getValue() || new Date();
     const initTimezone = window.localStorage.getItem(LOCAL_STORAGE_TIMZONE_KEY) || DEFAULT_TIMEZONE;
     const zoned = utcToZonedTime(initDate, TIMEZONES[initTimezone]);
-    const dateTime = format(zoned, DATE_FORMAT);
+    const dateTime = format(zoned, DATE_FORMAT).split(',');
 
     this.state = {
-      dateTime,
+      dateTime: `${dateTime[0]}T${dateTime[1]}`,
       timeZone: initTimezone,
       isOpen: false
     };
