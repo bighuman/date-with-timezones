@@ -8,17 +8,21 @@ div {
   font: inherit;
   vertical-align: baseline;
 }
+
 .date-with-timezones {
-  height: 170px;
+  height: auto;
 }
+
 .date-with-timezones .row {
   display: flex;
   flex-direction: row;
   margin-bottom: 20px;
 }
+
 .date-with-timezones .label {
   margin-right: 20px;
 }
+
 .date-with-timezones .input-field {
   display: flex;
   flex-direction: row;

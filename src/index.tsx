@@ -2,14 +2,13 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import {
   FormLabel,
-  TextInput,
   Button,
   Dropdown,
   DropdownList,
   DropdownListItem
 } from '@contentful/forma-36-react-components';
 import { init, FieldExtensionSDK } from 'contentful-ui-extensions-sdk';
-import { format, getUnixTime } from 'date-fns';
+import { format } from 'date-fns';
 import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 import '@contentful/forma-36-react-components/dist/styles.css';
 import './index.css';
@@ -19,27 +18,80 @@ interface AppProps {
 }
 
 interface AppState {
-  value?: string;
+  value?: any;
+  dateTime: any;
+  timeZone: any;
+  isOpen: boolean;
 }
 
-const DEFAULT_TIMEZONE = 'date-with-timezones-default';
+const LOCAL_STORAGE_TIMZONE_KEY = 'date-with-timezones-default';
+
+const DEFAULT_TIMEZONE = 'PDT (UTC-07:00)';
+const DATE_FORMAT = 'yyyy-MM-ddThh:mm';
+
+const TIMEZONES: { [key: string]: string } = {
+  'UTC-12:00': '-12:00',
+  'UTC-11:00': '-11:00',
+  'UTC-10:00': '-10:00',
+  'UTC-09:30': '-09:30',
+  'UTC-09:00': '-09:00',
+  'PST (UTC-08:00)': '-07:00',
+  'PDT (UTC-07:00)': '-07:00',
+  'MST (UTC-07:00)': '-07:00',
+  'MDT (UTC-06:00)': '-06:00',
+  'CST (UTC-06:00)': '-06:00',
+  'CDT (UTC-05:00)': '-05:00',
+  'EST (UTC-05:00)': '-04:00',
+  'UTC-04:30': '-04:30',
+  'EDT (UTC-04:00)': '-04:00',
+  'UTC-03:30': '-03:30',
+  'BRT (UTC-03:00)': '-03:00',
+  'UTC-02:00': '-02:00',
+  'UTC-01:00': '-01:00',
+  UTC: '+00:00',
+  'CET (UTC+01:00)': '+01:00',
+  'CEST (UTC+02:00)': '+02:00',
+  'TRT (UTC+03:00)': '+03:00',
+  'UTC+03:30': '+03:30',
+  'UTC+04:00': '+04:00',
+  'UTC+04:30': '+04:30',
+  'UTC+05:00': '+05:00',
+  'IST (UTC+05:30)': '+05:30',
+  'UTC+05:45': '+05:45',
+  'UTC+06:00': '+06:00',
+  'UTC+06:30': '+06:30',
+  'UTC+07:00': '+07:00',
+  'SGT (UTC+08:00)': '+08:00',
+  'UTC+08:45': '+08:45',
+  'JST (UTC+09:00)': '+09:00',
+  'UTC+09:30': '+09:30',
+  'AEST (UTC+10:00)': '+10:00',
+  'UTC+10:30': '+10:30',
+  'AEDT (UTC+11:00)': '+11:00',
+  'UTC+11:30': '+11:30',
+  'NZST (UTC+12:00)': '+12:00',
+  'UTC+12:45': '+12:45',
+  'NZDT (UTC+13:00)': '+13:00',
+  'UTC+14:00': '+14:00'
+};
 
 export class App extends React.Component<AppProps, AppState> {
+  detachExternalChangeHandler: Function | null = null;
+
   constructor(props: AppProps) {
     super(props);
-    const value = props.sdk.field.getValue() || new Date();
-    const defaultZone = window.localStorage.getItem(DEFAULT_TIMEZONE) || 'New York';
-    const zoned = utcToZonedTime(value, this.timezones[defaultZone]);
+
+    const initDate = new Date() || props.sdk.field.getValue();
+    const initTimezone = window.localStorage.getItem(LOCAL_STORAGE_TIMZONE_KEY) || DEFAULT_TIMEZONE;
+    const zoned = utcToZonedTime(initDate, TIMEZONES[initTimezone]);
+    const dateTime = format(zoned, DATE_FORMAT);
 
     this.state = {
-      date: format(zoned, 'yyyy-MM-dd'),
-      time: format(zoned, 'HH:mm'),
-      timeZone: defaultZone,
+      dateTime,
+      timeZone: initTimezone,
       isOpen: false
     };
   }
-
-  detachExternalChangeHandler: Function | null = null;
 
   componentDidMount() {
     this.props.sdk.window.startAutoResizer();
@@ -54,146 +106,55 @@ export class App extends React.Component<AppProps, AppState> {
     }
   }
 
-  timezones = {
-    "UTC-12:00": "-12:00",
-    "UTC-11:00": "-11:00",
-    "UTC-10:00": "-10:00",
-    "UTC-09:30": "-09:30",
-    "UTC-09:00": "-09:00",
-    "PST (UTC-08:00)": "-07:00",
-    "PDT (UTC-07:00)": "-07:00",
-    "MST (UTC-07:00)": "-07:00",
-    "MDT (UTC-06:00)": "-06:00",
-    "CST (UTC-06:00)": "-06:00",
-    "CDT (UTC-05:00)": "-05:00",
-    "EST (UTC-05:00)": "-04:00",
-    "UTC-04:30": "-04:30",
-    "EDT (UTC-04:00)": "-04:00",
-    "UTC-03:30": "-03:30",
-    "BRT (UTC-03:00)": "-03:00",
-    "UTC-02:00": "-02:00",
-    "UTC-01:00": "-01:00",
-    "UTC": "+00:00",
-    "CET (UTC+01:00)": "+01:00",
-    "CEST (UTC+02:00)": "+02:00",
-    "TRT (UTC+03:00)": "+03:00",
-    "UTC+03:30": "+03:30",
-    "UTC+04:00": "+04:00",
-    "UTC+04:30": "+04:30",
-    "UTC+05:00": "+05:00",
-    "IST (UTC+05:30)": "+05:30",
-    "UTC+05:45": "+05:45",
-    "UTC+06:00": "+06:00",
-    "UTC+06:30": "+06:30",
-    "UTC+07:00": "+07:00",
-    "SGT (UTC+08:00)": "+08:00",
-    "UTC+08:45": "+08:45",
-    "JST (UTC+09:00)": "+09:00",
-    "UTC+09:30": "+09:30",
-    "AEST (UTC+10:00)": "+10:00",
-    "UTC+10:30": "+10:30",
-    "AEDT (UTC+11:00)": "+11:00",
-    "UTC+11:30": "+11:30",
-    "NZST (UTC+12:00)": "+12:00",
-    "UTC+12:45": "+12:45",
-    "NZDT (UTC+13:00)": "+13:00",
-    "UTC+14:00": "+14:00"
+  onExternalChange = (value: string) => this.setState({ value });
+
+  onClose = () => this.setState({ isOpen: false });
+
+  handleToggle = () => this.setState({ isOpen: !this.state.isOpen });
+
+  handleTimezone = (timeZone: string) => {
+    window.localStorage.setItem(LOCAL_STORAGE_TIMZONE_KEY, timeZone);
+    this.setState({ isOpen: false, timeZone });
   };
 
-  onExternalChange = (value: string) => {
-    this.setState({ value });
-  };
+  handleDateTime = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.currentTarget.value;
+    const timeZone = TIMEZONES[this.state.timeZone];
+    const utc = zonedTimeToUtc(value, timeZone);
+    this.setState({ dateTime: value });
 
-  onChange = async (field: string, value: string) => {
-    const state = this.state;
-    state[field] = value;
-    this.setState(state);
-
-    const longTimeZone = this.timezones[state.timeZone];
-    const newValue = zonedTimeToUtc(`${state.date} ${state.time}`, longTimeZone);
-    console.log(newValue);
-    if (newValue) {
-      await this.props.sdk.field.setValue(newValue);
+    if (utc) {
+      await this.props.sdk.field.setValue(utc.toISOString());
     } else {
       await this.props.sdk.field.removeValue();
     }
-  }
-
-  onChangeDate = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value;
-    this.onChange("date", value);
   };
-
-  onChangeTime = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value;
-    console.log(value);
-    const parts = value.split(':');
-    let part1 = parseInt(parts[0].replace(/\D/g, ''), 10);
-    if (parts.length > 1) {
-      let part2 = parseInt(parts[1].replace(/\D/g, ''), 10);
-      if (part1 > 23) part1 = 23;
-      if (part2 > 59) part2 = 59;
-      if (part1 < 10) part1 = `0${part1}`;
-      if (part2 < 10) part2 = `0${part2}`;
-      this.onChange("time", `${part1}:${part2}`);
-    } else {
-      if (part1 > 59) part1 = 59;
-      if (part1 < 10) part1 = `0${part1}`;
-      this.onChange("time", `00:${part1}`);
-    }
-  };
-
-  onClose = () => {
-    this.setState({ isOpen: false });
-  }
-
-  onToggleButton = () => {
-    const { isOpen } = this.state;
-    this.setState({ isOpen: !isOpen });
-  }
-
-  setTimezone = (timezone: string) => {
-    this.onChange("timeZone", timezone);
-    window.localStorage.setItem(DEFAULT_TIMEZONE, timezone);
-    this.setState({ isOpen: false });
-  }
 
   render() {
-    const { isOpen, timeZone, date, time, value, timeZoneChanged } = this.state;
-    const listItems = [];
-    Object.keys(this.timezones).forEach(key => {
-      listItems.push(
-        <DropdownListItem key={key} onClick={() => {this.setTimezone(key)}}>
-          {key}
-        </DropdownListItem>
-      )
-    });
+    const { isOpen, timeZone, dateTime } = this.state;
 
     return (
       <div className="date-with-timezones">
         <div className="row">
           <div className="label">
-            <FormLabel htmlFor="timezone">TimeZone</FormLabel>
+            <FormLabel htmlFor="timezone">Timezone</FormLabel>
           </div>
           <Dropdown
-            name="timezone"
             isOpen={isOpen}
             onClose={this.onClose}
             key={Date.now()} // Force Reinit
             position="bottom-left"
             toggleElement={
-              <Button
-                size="small"
-                buttonType="muted"
-                indicateDropdown
-                onClick={this.onToggleButton}
-              >
+              <Button size="small" buttonType="muted" indicateDropdown onClick={this.handleToggle}>
                 {timeZone}
               </Button>
-            }
-          >
+            }>
             <DropdownList maxHeight={110}>
-              {listItems}
+              {Object.keys(TIMEZONES).map(timeZone => (
+                <DropdownListItem key={timeZone} onClick={() => this.handleTimezone(timeZone)}>
+                  {timeZone}
+                </DropdownListItem>
+              ))}
             </DropdownList>
           </Dropdown>
         </div>
@@ -201,34 +162,20 @@ export class App extends React.Component<AppProps, AppState> {
         <div className="row">
           <div className="input-field">
             <div className="label">
-              <FormLabel htmlFor="timezone">Date</FormLabel>
+              <FormLabel htmlFor="date">Date</FormLabel>
             </div>
-            <TextInput
-              width="medium"
-              type="date"
-              id="date-field"
-              testId="date-field"
-              value={date}
-              onChange={this.onChangeDate}
-            />
-          </div>
-          <div className="input-field">
-            <div className="label">
-              <FormLabel htmlFor="timezone">Time</FormLabel>
-            </div>
-            <TextInput
-              width="medium"
-              type="text"
-              id="time-field"
-              testId="time-field"
-              value={time}
-              onBlur={this.onChangeTime}
+            <input
+              type="datetime-local"
+              id="date"
+              name="date"
+              value={dateTime}
+              onChange={this.handleDateTime}
             />
           </div>
         </div>
       </div>
     );
-  };
+  }
 }
 
 init(sdk => {
